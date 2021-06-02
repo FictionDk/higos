@@ -77,17 +77,19 @@ class ExpressionUrlAuthorizationConfigurer {
 
 ### 授权模式
 1. http://127.0.0.1:9900/oauth/authorize?response_type=code&client_id=ctrlbus&redirect_uri=http://ctrlbus.matchine.dev.uplasma.com
-2. curl -X POST -d "grant_type=authorization_code&code=JCuCU8&client_id=ctrlbus&client_secret=showmethecode&redirect_uri=http://ctrlbus.matchine.dev.uplasma.com" http://localhost:9900/oauth/token
+2. curl -X POST -d "grant_type=authorization_code&code=FeXbAC&client_id=ctrlbus&client_secret=showmethecode&redirect_uri=http://ctrlbus.matchine.dev.uplasma.com" -u "ctrlbus:showmethecode" http://localhost:9900/oauth/token
 
 ### 简化授权模式
+1. Token Auth认证
 
 ### 密码模式
+1. curl -X POST -d "username=admin&password=123456&grant_type=password" -u "ctrlbus:showmethecode" http://localhost:9900/oauth/token
 
 ### 客户端模式
 
 ### Spring security 授权服务器
-1. Authorize Endpoint(/oauth2/authorize),颁发授权码
-2. Token Endpoint(/oauth2/token),获取令牌
+1. Authorize Endpoint(/oauth/authorize),颁发授权码
+2. Token Endpoint(/oauth/token),获取令牌
 3. Introspection Endpoint(/oauth2/introspect),校验token合法性
 4. Revocation Endpoint(/oauth2/revoke),撤销token授权
 
@@ -97,3 +99,14 @@ class ExpressionUrlAuthorizationConfigurer {
 3. [用户]将认证码交给[客户端],由[客户端]通过授权码到[认证服务器]通过`Token Endpoint`调用`AuthorizationSeverTokenServices`生成token
 4. [客户端]持token访问[资源服务器]
 5. [资源服务器]通过`Oauth2AuthenticationManager`调用`ResourceServerTokenServices`校验token
+
+## JWT
+
+1. 首部(header),负载(Payload),签名(signature)
+2. Header-基本信息 = `{"alg":签名算法,"typ":类型}` Base64
+3. Payload-存放有效信息; Base64
+4. signature-签证签名
+
+# 问题
+
+1. PasswordEncoder 除了作用于用户登录时,当使用`/oauth/token`核查`client_id/client_secret`时,也会调用.涉及的表有`oauth_client_details`和`user`,及对应的密码需要统一

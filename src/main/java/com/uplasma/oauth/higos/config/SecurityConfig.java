@@ -42,32 +42,32 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .and()
                 .csrf().disable();
-
     }
 
-    @Bean
+    @Bean("higosPasswordEncoder")
     public PasswordEncoder getPasswordEncoder(){
-        return new HigosPasswordEncoder();
-    }
-
-    static private class HigosPasswordEncoder implements PasswordEncoder{
-        @Override
-        public String encode(CharSequence charSequence) {
-            return md5(charSequence.toString());
-        }
-        @Override
-        public boolean matches(CharSequence charSequence, String s) {
-            return s.equals(md5(charSequence.toString()));
-        }
-        private String md5(String str){
-            String md5 = null;
-            try {
-                md5 = DigestUtils.md5DigestAsHex(str.toString().getBytes("utf-8"));
-            } catch (UnsupportedEncodingException e) {
-                log.error("encode err={}",e.toString());
+        return new PasswordEncoder() {
+            @Override
+            public String encode(CharSequence charSequence) {
+                log.debug("ENC={}",charSequence.toString());
+                return md5(charSequence.toString());
             }
-            return md5;
-        }
+            @Override
+            public boolean matches(CharSequence charSequence, String s) {
+                log.debug("MAC={},{}",charSequence.toString(),s);
+                if(s.equals(charSequence.toString())) return true;
+                return s.equals(md5(charSequence.toString()));
+            }
+            private String md5(String str){
+                String md5 = null;
+                try {
+                    md5 = DigestUtils.md5DigestAsHex(str.toString().getBytes("utf-8"));
+                } catch (UnsupportedEncodingException e) {
+                    log.error("encode err={}",e.toString());
+                }
+                return md5;
+            }
+        };
     }
 
     @Bean
