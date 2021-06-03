@@ -77,13 +77,13 @@ class ExpressionUrlAuthorizationConfigurer {
 
 ### 授权模式
 1. http://127.0.0.1:9900/oauth/authorize?response_type=code&client_id=ctrlbus&redirect_uri=http://ctrlbus.matchine.dev.uplasma.com
-2. curl -X POST -d "grant_type=authorization_code&code=FeXbAC&client_id=ctrlbus&client_secret=showmethecode&redirect_uri=http://ctrlbus.matchine.dev.uplasma.com" -u "ctrlbus:showmethecode" http://localhost:9900/oauth/token
+2. curl -X POST -d "grant_type=authorization_code&code=xxx&client_id=ctrlbus&client_secret=showmethecode&redirect_uri=http://ctrlbus.matchine.dev.uplasma.com" -u "ctrlbus:showmethecode" http://localhost:9900/oauth/token
 
 ### 简化授权模式
 1. Token Auth认证
 
 ### 密码模式
-1. curl -X POST -d "username=admin&password=123456&grant_type=password" -u "ctrlbus:showmethecode" http://localhost:9900/oauth/token
+1. curl -i -o test -X POST -d "username=admin&password=123456&grant_type=password" -u "station:showmethecode" http://localhost:9900/oauth/token
 
 ### 客户端模式
 
@@ -107,6 +107,13 @@ class ExpressionUrlAuthorizationConfigurer {
 3. Payload-存放有效信息; Base64
 4. signature-签证签名
 
+### Spring security资源服务器
+1. `@EnableResourceServer` 批注自动向 Spring Security 筛选器链添加一个 `OAuth2AuthenticationProcessingFilter` 类型的筛选器
+
+## 登录时刷新令牌
+1. 为`client.authorized_grant_types`添加`refresh_token`
+2. `curl -i -o test -X POST -d "grant_type=refresh_token&refresh_token=..." http://localhost:9900/oauth/token`
+
 # 问题
 
-1. PasswordEncoder 除了作用于用户登录时,当使用`/oauth/token`核查`client_id/client_secret`时,也会调用.涉及的表有`oauth_client_details`和`user`,及对应的密码需要统一
+1. PasswordEncoder 除了作用于用户登录`/login`时,当使用`/oauth/token`核查`client_id/client_secret`时,也会调用.涉及的表有`oauth_client_details`和`user`,及对应的密码需要统一
