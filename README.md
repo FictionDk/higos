@@ -18,7 +18,35 @@ mysql | 5.7.31
 2. 核心功能
     - 认证,用户是否能登录
     - 授权,用户是否由权限操作资源
-   
+
+### 基础认证流程
+![](http://cdn.semlinker.com/spring-security-arch.jpg)
+
+### 核心组件
+1. `org.springframework.security.core`核心包
+   - `security.core.Authentication` 用户细节,权限,认证信息等
+   - `security.core.context.SecurityContextHolder`
+   - `security.core.context.SecurityContext`,接口,实现类为`SecurityContextImpl`
+2. 流程
+   - 请求到达`security.web.authentication.AuthenticationFilter`过滤器,继承`springframework.web.filter.OncePerRequestFilter`
+   - 令牌传递到`security.authentication.AuthenticationManager.authenticate(Authentication var)`接口实例,判断账号密码是否正确,正确时填充Authentication
+
+### AuthenticationManager
+1. 发起认证的出发点,要求认证系统支持多种认证方式
+2. 框架根据不同认证方式,通过`ProviderManager`委托已配置的`AuthenticationProvider`列表(委托模式),依次查看是否可以执行身份认证
+3. 用户可以通过配置或自定义(实现`AuthenticationProvider`)来设置认证方式
+4. 如果所有认证器都无法使用,抛出`ProviderNotFoundException`异常
+
+### AuthenticationProvider
+1. DaoAuthenticationProvider是AuthenticationProvider一个内置的实现方式(用户名,密码)
+2. DaoAuthenticationProvider拥有包括`PasswordEncoder`和`UserDetailsService`等私有对象
+3. 用户一般要实现`UserDetailsService.loadByUsername(String username)`来实现自定义的用户信息获取
+
+### UserDetailsService
+1. UserDetailsService.loadByUsername 方法返回了UserDetails对象
+2. UserDetails表示详细的用户信息,其中UserDetails.getPassword()是数据库或其他途径获取的正确密码
+3. Authentication.getCredentials()则是用户提交的密码凭证
+
 ### 登录
 1. `UserDetailService UserDetails loadByUsername(String username);`
 2. `UserDetailService`和`UserDetail`均为接口,其中`UserDetail`Spring security有自己的实现类`User`
@@ -117,3 +145,6 @@ class ExpressionUrlAuthorizationConfigurer {
 # 问题
 
 1. PasswordEncoder 除了作用于用户登录`/login`时,当使用`/oauth/token`核查`client_id/client_secret`时,也会调用.涉及的表有`oauth_client_details`和`user`,及对应的密码需要统一
+
+# 参考
+1. https://www.docs4dev.com/docs/zh/spring-security/5.1.2.RELEASE/reference
